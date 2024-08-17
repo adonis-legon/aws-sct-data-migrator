@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tree>
+    <complex-attributes>
+        <type name="replicateTaskMain">
+            <attr name="mappings"></attr>
+        </type>
+        <type name="replicateTaskRemote">
+            <attr name="mappings"></attr>
+        </type>
+        <type name="replicateTaskLocal">
+            <attr name="mappings"></attr>
+        </type>
+    </complex-attributes>
+    <instances>
+        <ProjectModel application_version="1.0.676" directory="/home/adonis/Documents/aws-sct/projects" projectId="9ac4d4dc2c7c448ebefdac6c96186916" projectName="AWS Schema Conversion Tool Project1" description="" project_version="6" hasCheckBoxes="true" IdOperation="7">
+            <SCTControllerProxyV2 projectId="3843fe67a8934c439dee6dc9c1010fbb" encryptionKey="wO27GjVObXsOpJ7Gt43Dj8ww+VZbs9vImRve1yLZkguijgRfzmyXfowSbBTDC8Lo5YSxzCFP5BmQPlgFliYS896QLeEH3vdz">
+                <controllerExtractors/>
+                <controllerTasks/>
+                <snowballJobs/>
+                <virtualPartitions/>
+                <TableSettings/>
+            </SCTControllerProxyV2>
+            <ReplicateControllerProxy>
+                <controllerAgents/>
+                <controllerReplicateTasks/>
+                <snowballJobs/>
+            </ReplicateControllerProxy>
+            <NosqlControllerProxy>
+                <nosqlExtractors/>
+                <nosqlTasks/>
+            </NosqlControllerProxy>
+            <entities>
+                <sources>
+                    <DbServer metaStorageUuid="723d60f1-d894-4d4d-90e4-57a74ad23c79" name="Chinook (Oracle)" vendor="ORACLE" synthetic="false">
+                        <ConnectionModel serverName="192.168.64.4" clusterServerName="" connectionType="BASIC_SID" serverPort="1521" clusterServerPort="" localPort="" remoteServerHostname="" remoteServerPort="" sid="FREE" role="" warehouse="" userName="c##chinook" clusterUserName="" vendor="ORACLE" origin="SOURCE" useSsl="false" encryptData="false" sslAuthentication="false" tlsAuthentication="false" encryptConnection="false" trustServerCertificate="false" requireSsl="false" verifyServerCertificate="false" useGlue="false" s3Path="" requireCharset="false" isConnected="false" sqlPool="" serverAlias="Chinook (Oracle)" keyPathFile="" awsSecretsManagerSecretArn="" awsSecretsManagerAccessRoleArn="" clusterName="" useSshTunnel="false" sctService="false" trustStoreName="" useKerberos="false" encodeConnectionInfo="false" encryptPassword="false" encryptedPwd="aVrBSHJwGLi6KMOj3ibGYoqwU//TEj2N9O7Vs7rvE1X40IM="/>
+                    </DbServer>
+                </sources>
+                <targets>
+                    <DbServer metaStorageUuid="102d257e-091c-400e-9b67-bd5fdc66fa27" name="Chinook (Postres)" vendor="POSTGRESQL" synthetic="false">
+                        <ConnectionModel serverName="192.168.64.1" clusterServerName="" serverPort="5432" clusterServerPort="" localPort="" remoteServerHostname="" remoteServerPort="" sid="postgres" role="" warehouse="" userName="postgres" clusterUserName="" vendor="POSTGRESQL" origin="TARGET" useSsl="false" encryptData="false" sslAuthentication="false" tlsAuthentication="false" encryptConnection="false" trustServerCertificate="false" requireSsl="false" verifyServerCertificate="false" useGlue="false" s3Path="" requireCharset="false" isConnected="false" sqlPool="" serverAlias="Chinook (Postres)" keyPathFile="" awsSecretsManagerSecretArn="" awsSecretsManagerAccessRoleArn="" clusterName="" useSshTunnel="false" sctService="false" trustStoreName="" useKerberos="false" encodeConnectionInfo="false" encryptPassword="false" serviceName="" tnsAlias="" tnsFilePath="" tnsConnectIdentifier="" keyStoreAlias="" encryptedPwd="cojTyV3F42XZOCXvfwIi6RS+BVFR3o70hNnjOrg1+NPpYlEKrQ=="/>
+                    </DbServer>
+                    <DbServer metaStorageUuid="74b59bcc-203b-40a6-b48f-03c81a909df9" name="&lt;PostgreSQL (virtual)&gt;" vendor="POSTGRESQL" synthetic="true"/>
+                    <DbServer metaStorageUuid="13a990ff-93cb-4a81-861b-90538ad9ea85" name="&lt;Aurora_PostgreSQL (virtual)&gt;" vendor="AURORA_POSTGRESQL" synthetic="true"/>
+                    <DbServer metaStorageUuid="8ff57baa-6739-4ab8-b887-e9e727b6028d" name="&lt;MySQL (virtual)&gt;" vendor="MYSQL" synthetic="true"/>
+                    <DbServer metaStorageUuid="dfed5b15-26e0-4bba-a5fc-836ffa9b7b00" name="&lt;Aurora_MySQL (virtual)&gt;" vendor="AURORA_MYSQL" synthetic="true"/>
+                    <DbServer metaStorageUuid="ba2d83c1-864e-474c-a0e9-ebf3c9f4dce9" name="&lt;Maria_DB (virtual)&gt;" vendor="MARIA_DB" synthetic="true"/>
+                    <DbServer metaStorageUuid="f1323cd2-1b50-4530-8959-a011f00cba1d" name="&lt;Babelfish (virtual)&gt;" vendor="BABELFISH" synthetic="true"/>
+                    <DbServer metaStorageUuid="ec438c72-e9ee-473b-bc36-6901c2e8bd1e" name="&lt;Oracle (virtual)&gt;" vendor="ORACLE" synthetic="true"/>
+                    <DbServer metaStorageUuid="d3820c85-b014-48b3-be01-80ea438b4b48" name="&lt;MSSQL (virtual)&gt;" vendor="MSSQL" synthetic="true"/>
+                    <DbServer metaStorageUuid="2d7e8934-fd01-4a96-acfa-ea28cff24fa2" name="&lt;DynamoDB (virtual)&gt;" vendor="DYNAMODB" synthetic="true"/>
+                    <DbServer metaStorageUuid="a546bc52-d56b-4384-a725-9dc3fa766599" name="&lt;Glue (virtual)&gt;" vendor="GLUE" synthetic="true"/>
+                    <DbServer metaStorageUuid="20a35f11-06b8-44b2-af0f-3494a8847d03" name="&lt;Glue_Studio (virtual)&gt;" vendor="GLUE_STUDIO" synthetic="true"/>
+                    <DbServer metaStorageUuid="1a3541f3-bccb-4b28-9ec5-7443aaa7db69" name="&lt;Redshift + Glue (virtual)&gt;" vendor="REDSHIFT" synthetic="true"/>
+                    <DbServer metaStorageUuid="2ba99624-8f49-49a2-90c5-e61d51f98638" name="&lt;Redshift (virtual)&gt;" vendor="REDSHIFT" synthetic="true"/>
+                </targets>
+            </entities>
+            <relations/>
+        </ProjectModel>
+    </instances>
+</tree>
