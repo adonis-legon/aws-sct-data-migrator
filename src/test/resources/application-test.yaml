@@ -1,0 +1,7 @@
+app:
+    migration:
+        csvSeparator: "|"
+    persistence:
+        transporter:
+            fileSystem:
+                temporalPath: "migration"

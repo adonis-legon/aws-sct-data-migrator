@@ -1,6 +1,5 @@
-# Data migration tool based on AWS Schema Conversion Tool Project
+# Data migration tool based on an AWS Schema Conversion Tool Project
 
-## Supported Datasources
+## Supported Migrations
 
-- PostgreSQL
-- Oracle
+- Oracle to PostgreSQL

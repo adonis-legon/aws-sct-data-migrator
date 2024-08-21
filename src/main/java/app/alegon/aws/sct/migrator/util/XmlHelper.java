@@ -1,10 +1,6 @@
 package app.alegon.aws.sct.migrator.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.Reader;
-import java.io.InputStreamReader;
-
-import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,12 +9,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.springframework.core.io.Resource;
-import org.springframework.util.FileCopyUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.springframework.core.io.ResourceLoader;
 
 public class XmlHelper {
     private static final XPath xPath = XPathFactory.newInstance().newXPath();
@@ -38,15 +31,6 @@ public class XmlHelper {
         } catch (Exception e) {
             throw new Exception("Error loading xml document.", e);
         }
-    }
-
-    public static Document loadDocumentFromResourceFile(String xmlResourceName, ResourceLoader resourceLoader)
-            throws Exception {
-        Resource resource = resourceLoader.getResource("classpath:/xml/" + xmlResourceName);
-        Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8);
-        String xml = FileCopyUtils.copyToString(reader);
-
-        return loadDocumentFromString(xml);
     }
 
     public static String getValueOfNode(String expression, Node node) throws XPathExpressionException {

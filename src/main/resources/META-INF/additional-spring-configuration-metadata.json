@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "app.migration.csv-separator",
+    "type": "java.lang.String",
+    "description": "String separator for CSV content"
+  },
+  {
+    "name": "app.persistence.transporter.fileSystem.temporal-path",
+    "type": "java.lang.String",
+    "description": "A local path for temporal files created during migration using filesystem transporter"
+  }
+]}

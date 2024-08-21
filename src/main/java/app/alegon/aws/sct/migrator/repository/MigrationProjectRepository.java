@@ -1,8 +1,6 @@
 package app.alegon.aws.sct.migrator.repository;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
 import java.util.ArrayList;
@@ -25,58 +23,68 @@ import app.alegon.aws.sct.migrator.model.MigrationSchema;
 import app.alegon.aws.sct.migrator.model.MigrationTable;
 import app.alegon.aws.sct.migrator.model.MigrationTableColumn;
 import app.alegon.aws.sct.migrator.util.XmlHelper;
+import app.alegon.aws.sct.migrator.util.resource.ResourceProvider;
+import app.alegon.aws.sct.migrator.util.resource.ResourceProviderFactory;
+import app.alegon.aws.sct.migrator.util.resource.ResourceProviderType;
 
 @Repository
-public class ProjectRepository {
+public class MigrationProjectRepository {
 	private static final String PROJECT_NAME_XPATH = "/tree/instances/ProjectModel/@projectName";
-	private static final String PROJECT_SOURCE_SCHEMA_ID_XPATH = "/tree/instances/ProjectModel/entities/sources/DbServer/@metaStorageUuid";
 	private static final String PROJECT_SOURCE_DATA_SOURCE_XPATH = "/tree/instances/ProjectModel/entities/sources/DbServer/ConnectionModel";
-	private static final String PROJECT_TARGET_SCHEMA_ID_XPATH = "/tree/instances/ProjectModel/entities/targets/DbServer/@metaStorageUuid";
 	private static final String PROJECT_TARGET_DATA_SOURCE_XPATH = "/tree/instances/ProjectModel/entities/targets/DbServer/ConnectionModel";
 
-	private static final String SCHEMA_NAME_XPATH = "/tree/metadata/@name";
 	private static final String SCHEMAS_XPATH = "/tree/metadata/category/schema[@is-empty='N']";
 	private static final String SCHEMA_TABLES_XPATH = "./category/table";
 	private static final String SCHEMA_TABLE_COLUMNS_XPATH = "./category/column";
 	private static final String SCHEMA_TABLE_CONSTRAINTS_XPATH = "./category/constraint[@constraint-type='R']";
 
-	public MigrationProject loadFromPath(String awsSctProjectPath) throws Exception {
-		Path firstSctFile = Files.walk(Paths.get(awsSctProjectPath))
-				.filter(path -> path.toString().endsWith(".sct"))
-				.findFirst()
-				.orElse(null);
+	private ResourceProviderFactory resourceProviderFactory;
 
-		if (firstSctFile == null) {
-			throw new Exception("No .sct file found in the given path.");
-		}
-
-		Document awsSctProjectDocument = XmlHelper.loadDocumentFromString(Files.readString(firstSctFile));
-
-		Node sourceSchemaIdNode = XmlHelper.getNodeList(awsSctProjectDocument, PROJECT_SOURCE_SCHEMA_ID_XPATH)
-				.item(0);
-		Document awsSctSourceSchemaDocument = XmlHelper
-				.loadDocumentFromString(Files.readString(Paths.get(awsSctProjectPath,
-						String.format("source_%s.xml", sourceSchemaIdNode.getTextContent()))));
-
-		Node targetSchemaIdNode = XmlHelper.getNodeList(awsSctProjectDocument, PROJECT_TARGET_SCHEMA_ID_XPATH)
-				.item(0);
-		Document awsSctTargetSchemaDocument = XmlHelper
-				.loadDocumentFromString(Files.readString(Paths.get(awsSctProjectPath,
-						String.format("target_%s.xml", targetSchemaIdNode.getTextContent()))));
-
-		return loadFromXmlDocuments(awsSctProjectDocument, awsSctSourceSchemaDocument,
-				awsSctTargetSchemaDocument);
+	public MigrationProjectRepository(ResourceProviderFactory resourceProviderFactory) {
+		this.resourceProviderFactory = resourceProviderFactory;
 	}
 
-	public MigrationProject loadFromXmlDocuments(Document awsSctProjectDocument,
-			Document awsSctSourceSchemaDocument, Document awsSctTargetSchemaDocument) throws Exception {
+	public MigrationProject loadFromPath(String awsSctProjectPath, ResourceProviderType resourceProviderType,
+			DataSourceCredentials dataSourceCredentials) throws Exception {
+		ResourceProvider resourceProvider = resourceProviderFactory.getResourceProvider(resourceProviderType,
+				awsSctProjectPath);
+		String awsSctProjectFileContent = resourceProvider.getResourceContent(resourceProvider.getProjectFile());
+
+		Document awsSctProjectDocument = XmlHelper.loadDocumentFromString(awsSctProjectFileContent);
+		Document awsSctSourceSchemaDocument = getSchemaDocument(awsSctProjectDocument, PROJECT_SOURCE_DATA_SOURCE_XPATH,
+				resourceProvider, "source");
+		Document awsSctTargetSchemaDocument = getSchemaDocument(awsSctProjectDocument, PROJECT_TARGET_DATA_SOURCE_XPATH,
+				resourceProvider, "target");
+
+		return loadFromXmlDocuments(awsSctProjectDocument, awsSctSourceSchemaDocument, awsSctTargetSchemaDocument,
+				dataSourceCredentials);
+	}
+
+	private Document getSchemaDocument(Document awsSctProjectDocument, String projectSchemaXpathQuery,
+			ResourceProvider resourceProvider, String schemaFilePrefix) throws IOException, Exception {
+		NodeList dataSourceNodeList = XmlHelper.getNodeList(awsSctProjectDocument, projectSchemaXpathQuery);
+		if (dataSourceNodeList.getLength() == 0) {
+			throw new Exception("Data source not found");
+		}
+
+		String schemaId = dataSourceNodeList.item(0).getParentNode().getAttributes().getNamedItem("metaStorageUuid")
+				.getNodeValue();
+		String schemaFileName = String.format("%s_%s.xml", schemaFilePrefix, schemaId);
+
+		return XmlHelper.loadDocumentFromString(resourceProvider.getResourceContent(schemaFileName));
+	}
+
+	private MigrationProject loadFromXmlDocuments(Document awsSctProjectDocument, Document awsSctSourceSchemaDocument,
+			Document awsSctTargetSchemaDocument, DataSourceCredentials dataSourceCredentials) throws Exception {
 		String projectName = XmlHelper.getNodeList(awsSctProjectDocument, PROJECT_NAME_XPATH).item(0)
 				.getTextContent();
 		MigrationSchema sourceSchema = loadSchemaFromXmlDocument(awsSctSourceSchemaDocument);
 		MigrationSchema targetSchema = loadSchemaFromXmlDocument(awsSctTargetSchemaDocument);
 
-		MigrationDataSource sourceDataSource = loadDataSourceFromXmlDocument(awsSctProjectDocument, true);
-		MigrationDataSource targetDataSource = loadDataSourceFromXmlDocument(awsSctProjectDocument, false);
+		MigrationDataSource sourceDataSource = loadDataSourceFromXmlDocument(awsSctProjectDocument,
+				PROJECT_SOURCE_DATA_SOURCE_XPATH, dataSourceCredentials.sourcePassword());
+		MigrationDataSource targetDataSource = loadDataSourceFromXmlDocument(awsSctProjectDocument,
+				PROJECT_TARGET_DATA_SOURCE_XPATH, dataSourceCredentials.targetPassword());
 
 		MigrationSchema sortedSourceSchema = getMigrationSchemaWithSortedTables(sourceSchema);
 
@@ -97,11 +105,10 @@ public class ProjectRepository {
 				migrationMappings);
 	}
 
-	public MigrationDataSource loadDataSourceFromXmlDocument(Document awsSctProjectDocument, boolean isSource)
-			throws XPathExpressionException {
+	private MigrationDataSource loadDataSourceFromXmlDocument(Document awsSctProjectDocument,
+			String dataSourceXpathQUery, String dataSourcePassword) throws XPathExpressionException {
 
-		NodeList dataSourceNodeList = XmlHelper.getNodeList(awsSctProjectDocument,
-				isSource ? PROJECT_SOURCE_DATA_SOURCE_XPATH : PROJECT_TARGET_DATA_SOURCE_XPATH);
+		NodeList dataSourceNodeList = XmlHelper.getNodeList(awsSctProjectDocument, dataSourceXpathQUery);
 
 		if (dataSourceNodeList != null && dataSourceNodeList.getLength() > 0) {
 			Node dataSourceNode = dataSourceNodeList.item(0);
@@ -118,15 +125,14 @@ public class ProjectRepository {
 
 			return new MigrationDataSource(dataSourceVendor, dataSourceHost,
 					dataSourcePort, dataSourceDatabase, dataSourceUser,
-					null, null);
+					dataSourcePassword, null);
 		}
 
 		return null;
 	}
 
-	public MigrationSchema loadSchemaFromXmlDocument(Document awsSctSchemaDocument)
+	private MigrationSchema loadSchemaFromXmlDocument(Document awsSctSchemaDocument)
 			throws XPathExpressionException {
-		Node schemaNameNode = XmlHelper.getNodeList(awsSctSchemaDocument, SCHEMA_NAME_XPATH).item(0);
 		NodeList schemaNodeList = XmlHelper.getNodeList(awsSctSchemaDocument, SCHEMAS_XPATH);
 
 		List<MigrationTable> migrationTables = new ArrayList<>();
@@ -135,6 +141,9 @@ public class ProjectRepository {
 		if (schemaNodeList != null && schemaNodeList.getLength() > 0) {
 			for (int i = 0; i < schemaNodeList.getLength(); i++) {
 				Node schemaNode = schemaNodeList.item(i);
+				migrationSchema = new MigrationSchema(schemaNode.getAttributes().getNamedItem("name").getNodeValue(),
+						migrationTables);
+
 				NodeList schemaTableNodeList = XmlHelper.getNodeList(schemaNode, SCHEMA_TABLES_XPATH);
 
 				if (schemaTableNodeList.getLength() > 0) {
@@ -156,7 +165,7 @@ public class ProjectRepository {
 							String columnName = schemaTableColumnNode.getAttributes()
 									.getNamedItem("name").getNodeValue();
 							String columnType = schemaTableColumnNode.getAttributes()
-									.getNamedItem("data-type").getNodeValue();
+									.getNamedItem("dt-name").getNodeValue();
 
 							tableColumns.add(new MigrationTableColumn(columnName, columnType,
 									migrationTable));
@@ -180,14 +189,12 @@ public class ProjectRepository {
 					break;
 				}
 			}
-
-			migrationSchema = new MigrationSchema(schemaNameNode.getTextContent(), migrationTables);
 		}
 
 		return migrationSchema;
 	}
 
-	public MigrationSchema getMigrationSchemaWithSortedTables(MigrationSchema migrationSchema) {
+	private MigrationSchema getMigrationSchemaWithSortedTables(MigrationSchema migrationSchema) {
 		Collections.sort(migrationSchema.migrationTables(), new Comparator<MigrationTable>() {
 			@Override
 			public int compare(MigrationTable migrationTable1, MigrationTable migrationTable2) {
@@ -196,6 +203,7 @@ public class ProjectRepository {
 		});
 
 		List<MigrationTable> visitedMigrationTables = new ArrayList<>();
+		MigrationSchema orderedMigrationSchema = new MigrationSchema(migrationSchema.name(), visitedMigrationTables);
 		Queue<MigrationTable> processingMigrationTables = new LinkedList<>(migrationSchema.migrationTables());
 
 		while (processingMigrationTables.size() > 0) {
@@ -204,12 +212,15 @@ public class ProjectRepository {
 			if (currentMigrationTable.getDependencyCount() == 0 || currentMigrationTable.tableNameDependencies()
 					.stream().allMatch(tableName -> visitedMigrationTables.stream().map(t -> t.name())
 							.anyMatch(v -> v.equalsIgnoreCase(tableName)))) {
-				visitedMigrationTables.add(currentMigrationTable);
+				MigrationTable orderedMigrationTable = new MigrationTable(currentMigrationTable.name(),
+						currentMigrationTable.columns(), currentMigrationTable.tableNameDependencies(),
+						orderedMigrationSchema);
+				visitedMigrationTables.add(orderedMigrationTable);
 			} else {
 				processingMigrationTables.add(currentMigrationTable);
 			}
 		}
 
-		return new MigrationSchema(migrationSchema.name(), visitedMigrationTables);
+		return orderedMigrationSchema;
 	}
 }
