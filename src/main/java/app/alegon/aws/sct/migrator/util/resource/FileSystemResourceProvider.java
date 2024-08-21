@@ -30,7 +30,7 @@ public class FileSystemResourceProvider extends ResourceProvider {
             throw new ResourceException("No .sct file found in the given path.", null);
         }
 
-        return firstSctFile.toString();
+        return firstSctFile.getFileName().toString();
     }
 
 }

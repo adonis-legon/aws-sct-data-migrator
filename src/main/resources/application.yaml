@@ -1,6 +1,20 @@
 spring:
     application:
-        name: aws-sct-data-migrator
+        name: @project.artifactId@
+    main:
+        logStartupInfo: false
+
+info:
+    app:
+        name: @project.artifactId@
+        version: @project.version@
+
+logging:
+    level:
+        org:
+            springframework: off
+            hibernate: off
+            apache: off
 
 app:
     migration:

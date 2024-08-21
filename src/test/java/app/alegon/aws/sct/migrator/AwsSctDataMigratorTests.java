@@ -47,6 +47,7 @@ class AwsSctDataMigratorTests {
 					"projects/demo-chinook-oracle-to-postgres", ResourceProviderType.ApplicationResource,
 					new DataSourceCredentials("c##chinook", "c##chinook"));
 
+			migrationService.setMigrationObserver(new TestConsoleMigrationObserver());
 			migrationService.migrate(migrationProject);
 		} catch (Exception e) {
 			fail("Exception should not have been thrown: " + e.getMessage());

@@ -27,12 +27,10 @@ public class MigrationService {
 
     private MigrationObserver migrationObserver;
 
-    public MigrationService(DataExtractor dataExtractor, DataLoader dataLoader, DataTransporter dataTransporter,
-            MigrationObserver migrationObserver) {
+    public MigrationService(DataExtractor dataExtractor, DataLoader dataLoader, DataTransporter dataTransporter) {
         this.dataExtractor = dataExtractor;
         this.dataLoader = dataLoader;
         this.dataTransporter = dataTransporter;
-        this.migrationObserver = migrationObserver;
     }
 
     public void migrate(MigrationProject migrationProject)
@@ -78,5 +76,9 @@ public class MigrationService {
                 .onProjectMigrationStatus(
                         new MigrationStatus(migrationProject, MigrationStatusType.Successful,
                                 100, null));
+    }
+
+    public void setMigrationObserver(MigrationObserver migrationObserver) {
+        this.migrationObserver = migrationObserver;
     }
 }

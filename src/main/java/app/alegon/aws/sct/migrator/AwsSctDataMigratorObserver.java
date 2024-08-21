@@ -1,18 +1,19 @@
 package app.alegon.aws.sct.migrator;
 
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import app.alegon.aws.sct.migrator.business.MigrationObserver;
 import app.alegon.aws.sct.migrator.model.MigrationMappingStatus;
 import app.alegon.aws.sct.migrator.model.MigrationMappingStatusType;
 import app.alegon.aws.sct.migrator.model.MigrationStatus;
 
-@Component
-public class ConsoleMigrationObserver implements MigrationObserver {
+public class AwsSctDataMigratorObserver implements MigrationObserver {
+    private static final Logger logger = LoggerFactory.getLogger(AwsSctDataMigratorObserver.class);
 
     @Override
     public void onProjectMigrationStatus(MigrationStatus migrationStatus) {
-        System.out.println(String.format("Migration project %s has status: %s",
+        logger.info(String.format("Migration project %s has status: %s",
                 migrationStatus.migrationProject().name(),
                 migrationStatus.migrationStatusType().getValue()));
     }
@@ -20,14 +21,14 @@ public class ConsoleMigrationObserver implements MigrationObserver {
     @Override
     public void onTableMigrationStatus(MigrationMappingStatus migrationMappingStatus) {
         if (migrationMappingStatus.migrationStatusType() != MigrationMappingStatusType.Failed) {
-            System.out.println(String.format(
+            logger.info(String.format(
                     "Migration from source table %s to target table %s, has status: %s and %s%% completed",
                     migrationMappingStatus.migrationMapping().sourceTable().name(),
                     migrationMappingStatus.migrationMapping().targetTable().name(),
                     migrationMappingStatus.migrationStatusType().getValue(),
                     Float.valueOf(migrationMappingStatus.migrationPercentage())));
         } else {
-            System.out.println(String.format(
+            logger.error(String.format(
                     "Migration from source table %s to target table %s, has failed. Error: %s",
                     migrationMappingStatus.migrationMapping().sourceTable().name(),
                     migrationMappingStatus.migrationMapping().targetTable().name(),
