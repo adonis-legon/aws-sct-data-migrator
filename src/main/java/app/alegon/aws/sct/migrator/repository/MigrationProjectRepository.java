@@ -36,7 +36,8 @@ public class MigrationProjectRepository {
 	private static final String SCHEMAS_XPATH = "/tree/metadata/category/schema[@is-empty='N']";
 	private static final String SCHEMA_TABLES_XPATH = "./category/table";
 	private static final String SCHEMA_TABLE_COLUMNS_XPATH = "./category/column";
-	private static final String SCHEMA_TABLE_CONSTRAINTS_XPATH = "./category/constraint[@constraint-type='R']";
+	private static final String SCHEMA_TABLE_FK_CONSTRAINTS_XPATH = "./category/constraint[@constraint-type='R']";
+	private static final String SCHEMA_TABLE_PK_CONSTRAINTS_XPATH = "./category/constraint[@constraint-type='P']";
 
 	private ResourceProviderFactory resourceProviderFactory;
 
@@ -158,6 +159,18 @@ public class MigrationProjectRepository {
 								tableNameDependencies,
 								migrationSchema);
 
+						List<String> tablePKColumnsName = new ArrayList<>();
+						NodeList schemaTablePkConstraintNodeList = XmlHelper.getNodeList(schemaTableNode,
+								SCHEMA_TABLE_PK_CONSTRAINTS_XPATH);
+						if (schemaTablePkConstraintNodeList.getLength() > 0) {
+							NodeList schemaTablePkConstraintColumnNodeList = XmlHelper
+									.getNodeList(schemaTablePkConstraintNodeList.item(0), SCHEMA_TABLE_COLUMNS_XPATH);
+							for (int k = 0; k < schemaTablePkConstraintColumnNodeList.getLength(); k++) {
+								tablePKColumnsName.add(schemaTablePkConstraintColumnNodeList.item(k).getAttributes()
+										.getNamedItem("name").getNodeValue());
+							}
+						}
+
 						NodeList schemaTableColumnNodeList = XmlHelper.getNodeList(
 								schemaTableNode, SCHEMA_TABLE_COLUMNS_XPATH);
 						for (int k = 0; k < schemaTableColumnNodeList.getLength(); k++) {
@@ -167,14 +180,14 @@ public class MigrationProjectRepository {
 							String columnType = schemaTableColumnNode.getAttributes()
 									.getNamedItem("dt-name").getNodeValue();
 
-							tableColumns.add(new MigrationTableColumn(columnName, columnType,
-									migrationTable));
+							boolean isPK = tablePKColumnsName.contains(columnName);
+							tableColumns.add(new MigrationTableColumn(columnName, columnType, isPK, migrationTable));
 						}
 
-						NodeList schemaTableConstraintNodeList = XmlHelper.getNodeList(schemaTableNode,
-								SCHEMA_TABLE_CONSTRAINTS_XPATH);
-						for (int k = 0; k < schemaTableConstraintNodeList.getLength(); k++) {
-							Node schemaTableColumnConstraintNode = schemaTableConstraintNodeList
+						NodeList schemaTableFKConstraintNodeList = XmlHelper.getNodeList(schemaTableNode,
+								SCHEMA_TABLE_FK_CONSTRAINTS_XPATH);
+						for (int k = 0; k < schemaTableFKConstraintNodeList.getLength(); k++) {
+							Node schemaTableColumnConstraintNode = schemaTableFKConstraintNodeList
 									.item(k);
 							String tableNameDependency = schemaTableColumnConstraintNode
 									.getAttributes()

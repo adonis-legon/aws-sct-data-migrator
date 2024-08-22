@@ -18,7 +18,15 @@ logging:
 
 app:
     migration:
-        csvSeparator: "|"
+        extractor:
+            csvSeparator: "|"
+            pageSize: 1000
+        loader:
+            csvSeparator: "|"
+        transporter:
+            name: FILESYSTEM
+        observer:
+            name: CONSOLE
     persistence:
         transporter:
             fileSystem:

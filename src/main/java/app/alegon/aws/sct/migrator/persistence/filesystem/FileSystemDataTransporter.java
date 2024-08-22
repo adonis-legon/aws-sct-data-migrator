@@ -14,7 +14,7 @@ import app.alegon.aws.sct.migrator.persistence.exception.DataTransporterReceiveE
 import app.alegon.aws.sct.migrator.persistence.exception.DataTransporterRemoveException;
 import app.alegon.aws.sct.migrator.persistence.exception.DataTransporterSendException;
 
-@Component
+@Component("FILESYSTEM")
 public class FileSystemDataTransporter extends DataTransporter {
 
     private FileSystemDataTransporterConfig fileSystemDataTransporterConfig;

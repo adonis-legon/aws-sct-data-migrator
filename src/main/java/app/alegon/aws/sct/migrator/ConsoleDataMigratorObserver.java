@@ -2,14 +2,16 @@ package app.alegon.aws.sct.migrator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import app.alegon.aws.sct.migrator.business.MigrationObserver;
 import app.alegon.aws.sct.migrator.model.MigrationMappingStatus;
 import app.alegon.aws.sct.migrator.model.MigrationMappingStatusType;
 import app.alegon.aws.sct.migrator.model.MigrationStatus;
 
-public class AwsSctDataMigratorObserver implements MigrationObserver {
-    private static final Logger logger = LoggerFactory.getLogger(AwsSctDataMigratorObserver.class);
+@Component("CONSOLE")
+public class ConsoleDataMigratorObserver implements MigrationObserver {
+    private static final Logger logger = LoggerFactory.getLogger(ConsoleDataMigratorObserver.class);
 
     @Override
     public void onProjectMigrationStatus(MigrationStatus migrationStatus) {

@@ -12,4 +12,8 @@ public record MigrationTable(String name, List<MigrationTableColumn> columns, Li
 
         return count >= 0 ? count : 0;
     }
+
+    public List<MigrationTableColumn> getPrimaryKeyColumns() {
+        return columns.stream().filter(MigrationTableColumn::isPrimaryKey).toList();
+    }
 }

@@ -1,6 +1,14 @@
 app:
     migration:
-        csvSeparator: "|"
+        extractor:
+            csvSeparator: "|"
+            pageSize: 1000
+        loader:
+            csvSeparator: "|"
+        transporter:
+            name: FILESYSTEM
+        observer:
+            name: TEST_CONSOLE
     persistence:
         transporter:
             fileSystem:

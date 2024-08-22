@@ -51,7 +51,6 @@ public class AwsSctDataMigratorConsole implements CommandLineRunner {
         MigrationProject migrationProject = migrationProjectRepository.loadFromPath(projectPath,
                 ResourceProviderType.FileSystem, new DataSourceCredentials(sourcePassword, targetPassword));
 
-        migrationService.setMigrationObserver(new AwsSctDataMigratorObserver());
         migrationService.migrate(migrationProject);
     }
 

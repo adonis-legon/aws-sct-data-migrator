@@ -1,10 +1,13 @@
 package app.alegon.aws.sct.migrator;
 
+import org.springframework.stereotype.Component;
+
 import app.alegon.aws.sct.migrator.business.MigrationObserver;
 import app.alegon.aws.sct.migrator.model.MigrationMappingStatus;
 import app.alegon.aws.sct.migrator.model.MigrationMappingStatusType;
 import app.alegon.aws.sct.migrator.model.MigrationStatus;
 
+@Component("TEST_CONSOLE")
 public class TestConsoleMigrationObserver implements MigrationObserver {
 
     @Override

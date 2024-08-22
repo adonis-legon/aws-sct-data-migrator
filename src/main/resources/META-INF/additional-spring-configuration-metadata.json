@@ -1,15 +1,5 @@
 {"properties": [
   {
-    "name": "app.migration.csv-separator",
-    "type": "java.lang.String",
-    "description": "String separator for CSV content"
-  },
-  {
-    "name": "app.persistence.transporter.fileSystem.temporal-path",
-    "type": "java.lang.String",
-    "description": "A local path for temporal files created during migration using filesystem transporter"
-  },
-  {
     "name": "info.app.version",
     "type": "java.lang.String",
     "description": "Application name to be shown on the banner"
@@ -17,6 +7,46 @@
   {
     "name": "info.app.name",
     "type": "java.lang.String",
-    "description": "A description for 'info.app.name'"
+    "description": "Application name"
+  },
+  {
+    "name": "app.migration.extractor.name",
+    "type": "java.lang.String",
+    "description": "Implementation of data extractor from source database"
+  },
+  {
+    "name": "app.migration.extractor.csvSeparator",
+    "type": "java.lang.String",
+    "description": "Data Extractor field separator for CSV content"
+  },
+  {
+    "name": "app.migration.extractor.pageSize",
+    "type": "java.lang.String",
+    "description": "Data Extractor page size"
+  },
+  {
+    "name": "app.migration.transporter.name",
+    "type": "java.lang.String",
+    "description": "Implementation of data transport from source o target database"
+  },
+  {
+    "name": "app.migration.loader.name",
+    "type": "java.lang.String",
+    "description": "Implementation of data loader to target database"
+  },
+  {
+    "name": "app.migration.loader.csvSeparator",
+    "type": "java.lang.String",
+    "description": "Data Loader field separator for CSV content"
+  },
+  {
+    "name": "app.migration.observer.name",
+    "type": "java.lang.String",
+    "description": "Implementation of migration observer to provide user feedback of the internal process"
+  },
+  {
+    "name": "app.persistence.transporter.fileSystem.temporal-path",
+    "type": "java.lang.String",
+    "description": "A local path for temporal files created during migration using filesystem transporter"
   }
 ]}
