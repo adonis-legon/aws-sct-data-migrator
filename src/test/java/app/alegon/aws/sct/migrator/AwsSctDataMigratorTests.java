@@ -66,4 +66,17 @@ class AwsSctDataMigratorTests {
 			fail("Exception should not have been thrown: " + e.getMessage());
 		}
 	}
+
+	@Test
+	void whenMigratingDataFromSampleCoOracleToPostgres_itShouldNotThrowError() {
+		try {
+			MigrationProject migrationProject = migrationProjectProvider.loadFromPath(
+					"projects/sample-co-oracle-to-postgres", ResourceProviderType.ApplicationResource,
+					new DataSourceCredentials("C##CO", "postgres"));
+
+			migrationService.migrate(migrationProject);
+		} catch (Exception e) {
+			fail("Exception should not have been thrown: " + e.getMessage());
+		}
+	}
 }

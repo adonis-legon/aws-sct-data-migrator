@@ -4,6 +4,7 @@ import app.alegon.aws.sct.migrator.config.MigrationExtractorConfig;
 import app.alegon.aws.sct.migrator.model.MigrationDataSource;
 import app.alegon.aws.sct.migrator.model.MigrationTable;
 import app.alegon.aws.sct.migrator.persistence.exception.DataExtractorException;
+import app.alegon.aws.sct.migrator.persistence.exception.DataSerializeException;
 
 public abstract class DataExtractor {
 
@@ -18,7 +19,7 @@ public abstract class DataExtractor {
     public abstract boolean isInitialized();
 
     public abstract String extractTable(MigrationTable table, MigrationDataSource migrationDataSource)
-            throws DataExtractorException;
+            throws DataExtractorException, DataSerializeException;
 
     public abstract void terminate() throws DataExtractorException;
 }

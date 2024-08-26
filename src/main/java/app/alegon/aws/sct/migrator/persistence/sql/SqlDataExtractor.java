@@ -15,6 +15,7 @@ import app.alegon.aws.sct.migrator.model.MigrationTable;
 import app.alegon.aws.sct.migrator.model.MigrationTableColumn;
 import app.alegon.aws.sct.migrator.persistence.DataExtractor;
 import app.alegon.aws.sct.migrator.persistence.exception.DataExtractorException;
+import app.alegon.aws.sct.migrator.persistence.exception.DataSerializeException;
 
 public abstract class SqlDataExtractor extends DataExtractor {
 
@@ -48,7 +49,7 @@ public abstract class SqlDataExtractor extends DataExtractor {
 
     @Override
     public String extractTable(MigrationTable table, MigrationDataSource migrationDataSource)
-            throws DataExtractorException {
+            throws DataExtractorException, DataSerializeException {
 
         if (!isInitialized) {
             throw new DataExtractorException("Data Extractor is not initialized", null);
@@ -70,7 +71,7 @@ public abstract class SqlDataExtractor extends DataExtractor {
                 do {
                     List<String> rowDataList = new ArrayList<>();
                     for (MigrationTableColumn column : table.columns()) {
-                        rowDataList.add(rs.getString(column.name()));
+                        rowDataList.add(serializeTableColumn(column, rs));
                     }
                     outputContent.append(
                             rowDataList.stream().collect(Collectors.joining(migrationExtractorConfig.getCsvSeparator()))
@@ -84,6 +85,16 @@ public abstract class SqlDataExtractor extends DataExtractor {
             return outputContent.toString();
         } catch (SQLException e) {
             throw new DataExtractorException(e.getMessage(), e);
+        }
+    }
+
+    protected String serializeTableColumn(MigrationTableColumn migrationTableColumn, ResultSet resultSet)
+            throws DataSerializeException {
+        try {
+            String columnValue = resultSet.getString(migrationTableColumn.name());
+            return columnValue != null ? columnValue.replaceAll("[\t\n]", " ") : columnValue;
+        } catch (SQLException e) {
+            throw new DataSerializeException(migrationTableColumn, e);
         }
     }
 
