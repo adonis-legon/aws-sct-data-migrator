@@ -8,24 +8,24 @@ import org.springframework.stereotype.Component;
 
 import app.alegon.aws.sct.migrator.business.MigrationService;
 import app.alegon.aws.sct.migrator.model.MigrationProject;
-import app.alegon.aws.sct.migrator.repository.DataSourceCredentials;
-import app.alegon.aws.sct.migrator.repository.MigrationProjectRepository;
+import app.alegon.aws.sct.migrator.provider.DataSourceCredentials;
+import app.alegon.aws.sct.migrator.provider.MigrationProjectProvider;
 import app.alegon.aws.sct.migrator.util.resource.ResourceProviderType;
 
 @Component
 @Profile("!test")
 public class AwsSctDataMigratorConsole implements CommandLineRunner {
 
-    private MigrationProjectRepository migrationProjectRepository;
+    private MigrationProjectProvider migrationProjectProvider;
 
     private MigrationService migrationService;
 
     private static final String PROJECT_PATH_ARG = "--project-path";
 
     public AwsSctDataMigratorConsole(MigrationService migrationService,
-            MigrationProjectRepository migrationProjectRepository) {
+            MigrationProjectProvider migrationProjectProvider) {
         this.migrationService = migrationService;
-        this.migrationProjectRepository = migrationProjectRepository;
+        this.migrationProjectProvider = migrationProjectProvider;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class AwsSctDataMigratorConsole implements CommandLineRunner {
         char[] targetPasswordChars = console.readPassword("Enter target password: ");
         String targetPassword = new String(targetPasswordChars);
 
-        MigrationProject migrationProject = migrationProjectRepository.loadFromPath(projectPath,
+        MigrationProject migrationProject = migrationProjectProvider.loadFromPath(projectPath,
                 ResourceProviderType.FileSystem, new DataSourceCredentials(sourcePassword, targetPassword));
 
         migrationService.migrate(migrationProject);

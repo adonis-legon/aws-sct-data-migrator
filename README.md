@@ -3,10 +3,31 @@
 ## Requirements
 
 - Java 21 or later
+- An existing AWS Schema Conversion Tool directory with all files for a schema migration project
+
+## Steps to create project directory
+
+IMPORTANT: the user that connects to the source and target database, must have privileges to access data dictionary and other permissions defined on the tool's documentation
+
+1. Click *New project*
+2. Click *Add source* to connect to a source database
+3. Click *Add target* to connect to a target database
+4. Select source Database/Schema and select target Database and Click *Create Mapping*
+5. Go to *Main View*
+6. In the source, select the Database and right click to *Convert Schema*
+7. After the schema conversion is applied to the target database's schema, there might be objects that were not possible to directly migrate (marked as red on the source databse schema), in that case:
+    1. Go to *Assesment Report View*
+    2. Check the Summary for the missing objects not migrated
+    3. Go to Action Items tab to check those objects and perform manual conversion, and then run the *Convert Schema* step again
+8. After all source schema objects are converted, then go to target schema and right click for *Apply to database*
+9. After all schema objects are applied to target database, the resulting AWS SCT project directory files can be now passed as input to this data migration tool
+
+Reference video: https://www.youtube.com/watch?v=ibtNkChGFkw&t=85s
 
 ## Supported Migrations
 
 - Oracle to PostgreSQL
+- MSSQL to PostgreSQL
 
 ## Build
 

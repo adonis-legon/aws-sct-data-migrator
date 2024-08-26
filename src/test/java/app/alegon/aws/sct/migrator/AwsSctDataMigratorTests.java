@@ -12,8 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import app.alegon.aws.sct.migrator.business.MigrationService;
 import app.alegon.aws.sct.migrator.model.MigrationProject;
-import app.alegon.aws.sct.migrator.repository.DataSourceCredentials;
-import app.alegon.aws.sct.migrator.repository.MigrationProjectRepository;
+import app.alegon.aws.sct.migrator.provider.DataSourceCredentials;
+import app.alegon.aws.sct.migrator.provider.MigrationProjectProvider;
 import app.alegon.aws.sct.migrator.util.resource.ResourceProviderType;
 
 @SpringBootTest
@@ -21,14 +21,15 @@ import app.alegon.aws.sct.migrator.util.resource.ResourceProviderType;
 class AwsSctDataMigratorTests {
 
 	@Autowired
-	private MigrationProjectRepository projectRepository;
+	private MigrationProjectProvider migrationProjectProvider;
 
 	@Autowired
 	private MigrationService migrationService;
 
 	@Test
 	void whenLoadingMigrationProject_itShoulNotBeNull() throws Exception {
-		MigrationProject migrationProject = projectRepository.loadFromPath("projects/demo-chinook-oracle-to-postgres",
+		MigrationProject migrationProject = migrationProjectProvider.loadFromPath(
+				"projects/demo-chinook-oracle-to-postgres",
 				ResourceProviderType.ApplicationResource, new DataSourceCredentials("", ""));
 
 		assertTrue(migrationProject != null && migrationProject.sourceSchema() != null);
@@ -41,11 +42,24 @@ class AwsSctDataMigratorTests {
 	}
 
 	@Test
-	void whenMigratingData_itShouldNotThrowError() {
+	void whenMigratingDataFromOracleToPostgres_itShouldNotThrowError() {
 		try {
-			MigrationProject migrationProject = projectRepository.loadFromPath(
+			MigrationProject migrationProject = migrationProjectProvider.loadFromPath(
 					"projects/demo-chinook-oracle-to-postgres", ResourceProviderType.ApplicationResource,
-					new DataSourceCredentials("c##chinook", "c##chinook"));
+					new DataSourceCredentials("c##chinook", "postgres"));
+
+			migrationService.migrate(migrationProject);
+		} catch (Exception e) {
+			fail("Exception should not have been thrown: " + e.getMessage());
+		}
+	}
+
+	@Test
+	void whenMigratingDataFromMssqlToPostgres_itShouldNotThrowError() {
+		try {
+			MigrationProject migrationProject = migrationProjectProvider.loadFromPath(
+					"projects/demo-chinook-mssql-to-postgres", ResourceProviderType.ApplicationResource,
+					new DataSourceCredentials("mssqlsa123;", "postgres"));
 
 			migrationService.migrate(migrationProject);
 		} catch (Exception e) {

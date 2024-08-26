@@ -59,11 +59,13 @@ public class MigrationService {
 
         for (MigrationMapping migrationMapping : migrationProject.migrationMappings()) {
             migrationObserver.onTableMigrationStatus(
-                    new MigrationMappingStatus(migrationMapping, MigrationMappingStatusType.Started, 0, null));
+                    new MigrationMappingStatus(migrationMapping, MigrationMappingStatusType.Started,
+                            0, null));
 
             try {
                 migrationObserver.onTableMigrationStatus(
-                        new MigrationMappingStatus(migrationMapping, MigrationMappingStatusType.InProgress, 0, null));
+                        new MigrationMappingStatus(migrationMapping,
+                                MigrationMappingStatusType.InProgress, 0, null));
                 String sourceTableData = dataExtractor.extractTable(migrationMapping.sourceTable(),
                         migrationProject.sourceDataSource());
 
@@ -73,13 +75,15 @@ public class MigrationService {
                 dataLoader.loadTable(targetTableData, migrationMapping.targetTable(),
                         migrationProject.targetDataSource());
 
-                dataTransporter.removeTableData(migrationMapping.sourceTable());
-
                 migrationObserver.onTableMigrationStatus(
-                        new MigrationMappingStatus(migrationMapping, MigrationMappingStatusType.Successful, 100, null));
+                        new MigrationMappingStatus(migrationMapping,
+                                MigrationMappingStatusType.Successful, 100, null));
             } catch (Exception e) {
                 migrationObserver.onTableMigrationStatus(
-                        new MigrationMappingStatus(migrationMapping, MigrationMappingStatusType.Failed, 100, e));
+                        new MigrationMappingStatus(migrationMapping,
+                                MigrationMappingStatusType.Failed, 100, e));
+            } finally {
+                dataTransporter.removeTableData(migrationMapping.sourceTable());
             }
         }
 
