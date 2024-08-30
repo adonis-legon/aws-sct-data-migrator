@@ -3,7 +3,8 @@ package app.alegon.aws.sct.migrator.model;
 public enum DatabaseEngine {
     ORACLE("ORACLE"),
     POSTGRESQL("POSTGRESQL"),
-    MSSQL("MSSQL");
+    MSSQL("MSSQL"),
+    MYSQL("MYSQL");
 
     private final String engineName;
 

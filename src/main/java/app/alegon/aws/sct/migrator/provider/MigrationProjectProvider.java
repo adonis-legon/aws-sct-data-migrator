@@ -34,6 +34,7 @@ public class MigrationProjectProvider {
 	private static final String PROJECT_SOURCE_DATA_SOURCE_XPATH = "/tree/instances/ProjectModel/entities/sources/DbServer/ConnectionModel";
 	private static final String PROJECT_TARGET_DATA_SOURCE_XPATH = "/tree/instances/ProjectModel/entities/targets/DbServer/ConnectionModel";
 	private static final String PROJECT_MIGRATION_SOURCE_SCHEMA_XPATH = "/tree/instances/ProjectModel/relations/server-node-location/FullNameNodeInfoList/nameParts/FullNameNodeInfo[@typeNode='schema']";
+	private static final String PROJECT_MIGRATION_SOURCE_DATABASE_XPATH = "/tree/instances/ProjectModel/relations/server-node-location/FullNameNodeInfoList/nameParts/FullNameNodeInfo[@typeNode='database']";
 	private static final String PROJECT_MIGRATION_TARGET_SCHEMA_XPATH = "/tree/instances/ProjectModel/relations/server-node-location/related-locations/server-node-location/FullNameNodeInfoList/nameParts/FullNameNodeInfo[@typeNode='schema']";
 
 	private static final String SCHEMAS_XPATH_TEMPLATE = "//category/schema[@name='%s']";
@@ -105,14 +106,14 @@ public class MigrationProjectProvider {
 				.getNamedItem("nameNode").getNodeValue();
 
 		MigrationSchema sourceSchema = loadSchemaFromXmlDocument(awsSctSourceSchemaDocument,
-				projectMigrationSourceSchemaName);
+				projectMigrationSourceSchemaName, true);
 		MigrationSchema targetSchema = loadSchemaFromXmlDocument(awsSctTargetSchemaDocument,
-				projectMigrationTargetSchemaName);
+				projectMigrationTargetSchemaName, false);
 
 		MigrationDataSource sourceDataSource = loadDataSourceFromXmlDocument(awsSctProjectDocument,
-				PROJECT_SOURCE_DATA_SOURCE_XPATH, dataSourceCredentials.sourcePassword());
+				dataSourceCredentials.sourcePassword(), sourceSchema);
 		MigrationDataSource targetDataSource = loadDataSourceFromXmlDocument(awsSctProjectDocument,
-				PROJECT_TARGET_DATA_SOURCE_XPATH, dataSourceCredentials.targetPassword());
+				dataSourceCredentials.targetPassword(), targetSchema);
 
 		MigrationSchema sortedSourceSchema = getMigrationSchemaWithSortedTables(sourceSchema);
 
@@ -133,7 +134,8 @@ public class MigrationProjectProvider {
 				migrationMappings);
 	}
 
-	private MigrationSchema loadSchemaFromXmlDocument(Document awsSctSchemaDocument, String mappingSchemaName)
+	private MigrationSchema loadSchemaFromXmlDocument(Document awsSctSchemaDocument, String mappingSchemaName,
+			boolean isSource)
 			throws XPathExpressionException, MigrationSchemaInvalidFormatException {
 		String schemaNameXPathQuery = String.format(SCHEMAS_XPATH_TEMPLATE, mappingSchemaName);
 		NodeList schemaNodeList = XmlHelper.getNodeList(awsSctSchemaDocument, schemaNameXPathQuery);
@@ -147,7 +149,7 @@ public class MigrationProjectProvider {
 		for (int i = 0; i < schemaNodeList.getLength(); i++) {
 			Node schemaNode = schemaNodeList.item(i);
 			migrationSchema = new MigrationSchema(schemaNode.getAttributes().getNamedItem("name").getNodeValue(),
-					migrationTables);
+					migrationTables, isSource);
 
 			NodeList schemaTableNodeList = XmlHelper.getNodeList(schemaNode, SCHEMA_TABLES_XPATH);
 
@@ -220,8 +222,10 @@ public class MigrationProjectProvider {
 	}
 
 	private MigrationDataSource loadDataSourceFromXmlDocument(Document awsSctProjectDocument,
-			String dataSourceXpathQUery, String dataSourcePassword) throws XPathExpressionException {
+			String dataSourcePassword, MigrationSchema schema) throws XPathExpressionException {
 
+		String dataSourceXpathQUery = schema.isSource() ? PROJECT_SOURCE_DATA_SOURCE_XPATH
+				: PROJECT_TARGET_DATA_SOURCE_XPATH;
 		NodeList dataSourceNodeList = XmlHelper.getNodeList(awsSctProjectDocument, dataSourceXpathQUery);
 
 		if (dataSourceNodeList != null && dataSourceNodeList.getLength() > 0) {
@@ -232,10 +236,22 @@ public class MigrationProjectProvider {
 					.getNamedItem("serverName").getNodeValue();
 			int dataSourcePort = Integer.parseInt(dataSourceNode.getAttributes()
 					.getNamedItem("serverPort").getNodeValue());
-			String dataSourceDatabase = dataSourceNode.getAttributes()
-					.getNamedItem("sid").getNodeValue();
 			String dataSourceUser = dataSourceNode.getAttributes()
 					.getNamedItem("userName").getNodeValue();
+			String dataSourceDatabase = dataSourceNode.getAttributes()
+					.getNamedItem("sid").getNodeValue();
+
+			if (dataSourceDatabase == null || dataSourceDatabase.isEmpty()) {
+				if (schema.isSource()) {
+					NodeList dataSourceDatabaseNodeList = XmlHelper.getNodeList(awsSctProjectDocument,
+							PROJECT_MIGRATION_SOURCE_DATABASE_XPATH);
+					dataSourceDatabase = dataSourceDatabaseNodeList.getLength() > 0
+							? dataSourceDatabaseNodeList.item(0).getAttributes().getNamedItem("nameNode").getNodeValue()
+							: schema.name();
+				} else {
+					dataSourceDatabase = schema.name();
+				}
+			}
 
 			return new MigrationDataSource(dataSourceVendor, dataSourceHost,
 					dataSourcePort, dataSourceDatabase, dataSourceUser,
@@ -254,7 +270,8 @@ public class MigrationProjectProvider {
 		});
 
 		List<MigrationTable> visitedMigrationTables = new ArrayList<>();
-		MigrationSchema orderedMigrationSchema = new MigrationSchema(migrationSchema.name(), visitedMigrationTables);
+		MigrationSchema orderedMigrationSchema = new MigrationSchema(migrationSchema.name(), visitedMigrationTables,
+				migrationSchema.isSource());
 		Queue<MigrationTable> processingMigrationTables = new LinkedList<>(migrationSchema.migrationTables());
 
 		while (processingMigrationTables.size() > 0) {

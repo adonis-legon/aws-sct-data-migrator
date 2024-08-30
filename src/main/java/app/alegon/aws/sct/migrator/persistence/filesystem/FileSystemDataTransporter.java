@@ -46,14 +46,8 @@ public class FileSystemDataTransporter extends DataTransporter {
     @Override
     public String sendTableData(MigrationTable sourceMigrationTable)
             throws DataTransporterSendException {
-        Path outputFile = Paths.get(fileSystemDataTransporterConfig.getTemporalPath(),
-                getTransportId(sourceMigrationTable));
-
-        try {
-            return Files.readString(outputFile);
-        } catch (Exception e) {
-            throw new DataTransporterSendException("Error in send step of the transport process.", e);
-        }
+        return Paths.get(fileSystemDataTransporterConfig.getTemporalPath(), getTransportId(sourceMigrationTable))
+                .toString();
     }
 
     @Override

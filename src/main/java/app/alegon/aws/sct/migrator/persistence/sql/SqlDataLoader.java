@@ -8,6 +8,7 @@ import app.alegon.aws.sct.migrator.config.MigrationLoaderConfig;
 import app.alegon.aws.sct.migrator.model.MigrationDataSource;
 import app.alegon.aws.sct.migrator.persistence.DataLoader;
 import app.alegon.aws.sct.migrator.persistence.exception.DataExtractorException;
+import app.alegon.aws.sct.migrator.persistence.sql.exception.SqlConnectionStringException;
 
 public abstract class SqlDataLoader extends DataLoader {
 
@@ -27,7 +28,7 @@ public abstract class SqlDataLoader extends DataLoader {
                         migrationDataSource.userName(), migrationDataSource.password());
                 isInitialized = true;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | SqlConnectionStringException e) {
             throw new DataExtractorException("Error connecting to target datasource. Message: " + e.getMessage(), e);
         }
     }
@@ -49,5 +50,6 @@ public abstract class SqlDataLoader extends DataLoader {
         }
     }
 
-    protected abstract String getConnectionString(MigrationDataSource migrationDataSource);
+    protected abstract String getConnectionString(MigrationDataSource migrationDataSource)
+            throws SqlConnectionStringException;
 }

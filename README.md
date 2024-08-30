@@ -28,6 +28,12 @@ Reference video: https://www.youtube.com/watch?v=ibtNkChGFkw&t=85s
 
 - Oracle to PostgreSQL
 - MSSQL to PostgreSQL
+- Oracle to MySQL
+- MSSQL to MySQL
+
+### Special considerations
+
+- In the case of data migration into MySQL, there should be a configuration set to ON on the DbEngine which is: local_infile=ON, to be able to support remote file data import into MySQL
 
 ## Build
 

@@ -79,4 +79,30 @@ class AwsSctDataMigratorTests {
 			fail("Exception should not have been thrown: " + e.getMessage());
 		}
 	}
+
+	@Test
+	void whenMigratingDataFromOracleToMySQL_itShouldNotThrowError() {
+		try {
+			MigrationProject migrationProject = migrationProjectProvider.loadFromPath(
+					"projects/demo-chinook-oracle-to-mysql", ResourceProviderType.ApplicationResource,
+					new DataSourceCredentials("c##chinook", "mysql"));
+
+			migrationService.migrate(migrationProject);
+		} catch (Exception e) {
+			fail("Exception should not have been thrown: " + e.getMessage());
+		}
+	}
+
+	@Test
+	void whenMigratingDataFromMssqlToMySQL_itShouldNotThrowError() {
+		try {
+			MigrationProject migrationProject = migrationProjectProvider.loadFromPath(
+					"projects/demo-chinook-mssql-to-mysql", ResourceProviderType.ApplicationResource,
+					new DataSourceCredentials("mssqlsa123;", "mysql"));
+
+			migrationService.migrate(migrationProject);
+		} catch (Exception e) {
+			fail("Exception should not have been thrown: " + e.getMessage());
+		}
+	}
 }

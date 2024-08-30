@@ -1,6 +1,8 @@
 package app.alegon.aws.sct.migrator.persistence.postgres;
 
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 import org.postgresql.copy.CopyManager;
@@ -12,6 +14,7 @@ import app.alegon.aws.sct.migrator.model.MigrationDataSource;
 import app.alegon.aws.sct.migrator.model.MigrationTable;
 import app.alegon.aws.sct.migrator.persistence.exception.DataLoaderException;
 import app.alegon.aws.sct.migrator.persistence.sql.SqlDataLoader;
+import app.alegon.aws.sct.migrator.persistence.sql.exception.SqlConnectionStringException;
 
 @Component("POSTGRESQL")
 public class PostgresDataLoader extends SqlDataLoader {
@@ -28,7 +31,7 @@ public class PostgresDataLoader extends SqlDataLoader {
             throws DataLoaderException {
         try {
             CopyManager copyManager = new CopyManager((BaseConnection) targetConnection);
-            StringReader reader = new StringReader(tableData);
+            StringReader reader = new StringReader(Files.readString(Paths.get(tableData)));
 
             String columnList = targetTable.columns().stream().map(col -> "\"" + col.name() + "\"")
                     .collect(Collectors.joining(","));
@@ -43,7 +46,7 @@ public class PostgresDataLoader extends SqlDataLoader {
     }
 
     @Override
-    protected String getConnectionString(MigrationDataSource migrationDataSource) {
+    protected String getConnectionString(MigrationDataSource migrationDataSource) throws SqlConnectionStringException {
         return String.format(POSTGRES_CONNECTION_STRING, migrationDataSource.host(), migrationDataSource.port(),
                 migrationDataSource.database());
     }
