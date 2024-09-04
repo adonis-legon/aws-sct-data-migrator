@@ -23,7 +23,7 @@ public abstract class SqlDataExtractor extends DataExtractor {
 
     protected boolean isInitialized;
 
-    private final String TABLE_ORDER_BY = "ORDER BY %s ";
+    private final String PK_BASED_QUERY_PART = "ORDER BY %s ";
 
     public SqlDataExtractor(MigrationExtractorConfig migrationExtractorConfig) {
         super(migrationExtractorConfig);
@@ -63,7 +63,8 @@ public abstract class SqlDataExtractor extends DataExtractor {
 
             int offset = 0;
             do {
-                String query = getSelectQueryWithPagingTemplate(table, offset, getPagingSize());
+                SelectQueryParameters selectQueryParameters = new SelectQueryParameters(offset, getPagingSize());
+                String query = getSelectQueryAsTemplate(table, selectQueryParameters);
                 ResultSet rs = stmt.executeQuery(query);
                 if (!rs.next())
                     break;
@@ -114,7 +115,7 @@ public abstract class SqlDataExtractor extends DataExtractor {
         String orderByQueryPart = "";
         List<MigrationTableColumn> tablePkList = table.getPrimaryKeyColumns();
         if (tablePkList.size() > 0) {
-            orderByQueryPart = String.format(TABLE_ORDER_BY,
+            orderByQueryPart = String.format(PK_BASED_QUERY_PART,
                     tablePkList.stream().map(c -> c.name()).collect(Collectors.joining(",")));
         }
 
@@ -127,5 +128,6 @@ public abstract class SqlDataExtractor extends DataExtractor {
 
     protected abstract String getConnectionString(MigrationDataSource migrationDataSource);
 
-    protected abstract String getSelectQueryWithPagingTemplate(MigrationTable table, int offset, int pageSize);
+    protected abstract String getSelectQueryAsTemplate(MigrationTable table,
+            SelectQueryParameters selectQueryParameters);
 }

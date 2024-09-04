@@ -46,3 +46,18 @@ mvn clean package -DskipTests
 ```console
 java -jar aws-sct-data-migrator-{version}.jar --project-path /aws/sct/project/directory
 ```
+
+## CHANGELOG
+
+1. v0.0.1: MVP supporting basic features
+    1. Load AWS Schema Conversion Tool's Project files to detect source and target schemas, datasources, table structures, primary keys and table relations
+    2. Determine data migration plan based on table dependencies
+    3. Support for Data Extractors:
+        1. Oracle Database
+        2. Microsoft SQL Server (MSSQL) 
+    4. Support for Data Loaders:
+        1. PosgreSQL
+        2. MySQL
+    5. Support for console based execution to perform manual data migrations
+2. v0.0.2: Support for service based execution for "low volume" data migration scenarios to keep running frequently as a service
+    1. Load data into target datasource avoiding primary key violation due to duplicates

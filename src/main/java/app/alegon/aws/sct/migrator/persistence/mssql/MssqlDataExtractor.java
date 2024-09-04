@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import app.alegon.aws.sct.migrator.config.MigrationExtractorConfig;
 import app.alegon.aws.sct.migrator.model.MigrationDataSource;
 import app.alegon.aws.sct.migrator.model.MigrationTable;
+import app.alegon.aws.sct.migrator.persistence.sql.SelectQueryParameters;
 import app.alegon.aws.sct.migrator.persistence.sql.SqlDataExtractor;
 
 @Component("MSSQL")
@@ -24,7 +25,8 @@ public class MssqlDataExtractor extends SqlDataExtractor {
     }
 
     @Override
-    protected String getSelectQueryWithPagingTemplate(MigrationTable table, int offset, int pageSize) {
-        return String.format(TABLE_SELECT_QUERY, table.name(), getOrderByPKColumnsQueryPart(table), offset, pageSize);
+    protected String getSelectQueryAsTemplate(MigrationTable table, SelectQueryParameters selectQueryParameters) {
+        return String.format(TABLE_SELECT_QUERY, table.name(), getOrderByPKColumnsQueryPart(table),
+                selectQueryParameters.offset(), selectQueryParameters.pageSize());
     }
 }

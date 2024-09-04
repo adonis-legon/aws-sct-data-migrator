@@ -17,7 +17,10 @@ import app.alegon.aws.sct.migrator.persistence.sql.exception.SqlConnectionString
 public class MysqlDataLoader extends SqlDataLoader {
 
     private final String MYSQL_CONNECTION_STRING = "jdbc:mysql://%s:%s?allowLoadLocalInfile=true";
+    private final String CREATE_TEMPORAL_TABLE_SQL = "CREATE TEMPORARY TABLE %s LIKE %s";
     private final String TABLE_COPY_COMMAND = "LOAD DATA LOCAL INFILE '%s' INTO TABLE %s FIELDS TERMINATED BY '%s' ENCLOSED BY '\"' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;";
+    private final String INSERT_TEMPORAL_TABLE_SQL = "INSERT IGNORE INTO %s SELECT * FROM %s";
+    private final String DROP_TEMPORAL_TABLE_SQL = "DROP TEMPORARY TABLE IF EXISTS %s";
 
     public MysqlDataLoader(MigrationLoaderConfig migrationLoaderConfig) {
         super(migrationLoaderConfig);
@@ -39,17 +42,37 @@ public class MysqlDataLoader extends SqlDataLoader {
     }
 
     @Override
-    public void loadTable(String tableData, MigrationTable targetTable, MigrationDataSource migrationDataSource)
+    protected String getCreateTemporalTableSql(MigrationTable targetTable) {
+        return String.format(CREATE_TEMPORAL_TABLE_SQL, getTemporalTableName(targetTable), targetTable.name());
+    }
+
+    @Override
+    protected void copyDataIntoTemporalTable(String tableData, MigrationTable targetTable, Statement stmt)
             throws DataLoaderException {
         try {
-            String tableCopyCommand = String.format(TABLE_COPY_COMMAND, tableData, targetTable.name(),
+            String tableCopyCommand = String.format(TABLE_COPY_COMMAND, tableData, getTemporalTableName(targetTable),
                     migrationLoaderConfig.getCsvSeparator());
-            try (Statement stmt = targetConnection.createStatement()) {
-                stmt.execute(tableCopyCommand);
-            }
-        } catch (Exception e) {
-            throw new DataLoaderException(e.getMessage(), e);
+            stmt.execute(tableCopyCommand);
+        } catch (SQLException e) {
+            throw new DataLoaderException("Error copying data into temporal table: " + targetTable.name(), e);
         }
+    }
+
+    @Override
+    protected void insertFromTemporalTableIntoTargetTable(MigrationTable targetTable, Statement stmt)
+            throws DataLoaderException {
+        try {
+            String insertTemporalTableSQL = String.format(INSERT_TEMPORAL_TABLE_SQL, targetTable.name(),
+                    getTemporalTableName(targetTable));
+            stmt.execute(insertTemporalTableSQL);
+        } catch (SQLException e) {
+            throw new DataLoaderException("Error inserting data into target table: " + targetTable.name(), e);
+        }
+    }
+
+    @Override
+    protected String getDropTemporalTableSql(MigrationTable targetTable) {
+        return String.format(DROP_TEMPORAL_TABLE_SQL, getTemporalTableName(targetTable));
     }
 
 }

@@ -11,6 +11,7 @@ import app.alegon.aws.sct.migrator.model.MigrationDataSource;
 import app.alegon.aws.sct.migrator.model.MigrationTable;
 import app.alegon.aws.sct.migrator.model.MigrationTableColumn;
 import app.alegon.aws.sct.migrator.persistence.exception.DataSerializeException;
+import app.alegon.aws.sct.migrator.persistence.sql.SelectQueryParameters;
 import app.alegon.aws.sct.migrator.persistence.sql.SqlDataExtractor;
 
 @Component("ORACLE")
@@ -30,8 +31,9 @@ public class OracleDataExtractor extends SqlDataExtractor {
     }
 
     @Override
-    protected String getSelectQueryWithPagingTemplate(MigrationTable table, int offset, int pageSize) {
-        return String.format(TABLE_SELECT_QUERY, table.name(), getOrderByPKColumnsQueryPart(table), offset, pageSize);
+    protected String getSelectQueryAsTemplate(MigrationTable table, SelectQueryParameters selectQueryParameters) {
+        return String.format(TABLE_SELECT_QUERY, table.name(), getOrderByPKColumnsQueryPart(table),
+                selectQueryParameters.offset(), selectQueryParameters.pageSize());
     }
 
     @Override
