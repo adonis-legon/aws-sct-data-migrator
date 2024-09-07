@@ -8,7 +8,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import app.alegon.aws.sct.migrator.business.MigrationService;
 import app.alegon.aws.sct.migrator.model.MigrationProject;
@@ -17,7 +16,6 @@ import app.alegon.aws.sct.migrator.provider.MigrationProjectProvider;
 import app.alegon.aws.sct.migrator.util.resource.ResourceProviderType;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class AwsSctDataMigratorTests {
 
 	@Autowired

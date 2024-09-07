@@ -48,5 +48,30 @@
     "name": "app.persistence.transporter.fileSystem.temporal-path",
     "type": "java.lang.String",
     "description": "A local path for temporal files created during migration using filesystem transporter"
+  },
+  {
+    "name": "app.migration.service.schedule",
+    "type": "java.lang.String",
+    "description": "When using service mode, this is a CRON expression for scheduling the migration task execution"
+  },
+  {
+    "name": "app.migration.service.timezone",
+    "type": "java.lang.String",
+    "description": "When using service mode, this is the timezone for the CRON expression"
+  },
+  {
+    "name": "app.migration.service.projectPath",
+    "type": "java.lang.String",
+    "description": "When using service mode, this is the AWS SCT Project Path for the migration"
+  },
+  {
+    "name": "app.migration.service.sourcePassword",
+    "type": "java.lang.String",
+    "description": "When using service mode, this is the password for the source Datasource"
+  },
+  {
+    "name": "app.migration.service.targetPassword",
+    "type": "java.lang.String",
+    "description": "When using service mode, this is the password for the target Datasource"
   }
 ]}

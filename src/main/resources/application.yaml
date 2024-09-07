@@ -26,7 +26,13 @@ app:
         transporter:
             name: FILESYSTEM
         observer:
-            name: CONSOLE
+            name: LOG
+        service:
+            schedule: ${MIGRATION_SERVICE_SCHEDULE}
+            timezone: ${MIGRATION_SERVICE_TIMEZONE}
+            projectPath: ${MIGRATION_SERVICE_PROJECT_PATH}
+            sourcePassword: ${MIGRATION_SERVICE_SOURCE_PASSWORD}
+            targetPassword: ${MIGRATION_SERVICE_TARGET_PASSWORD}
     persistence:
         transporter:
             fileSystem:

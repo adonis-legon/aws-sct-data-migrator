@@ -41,10 +41,21 @@ Reference video: https://www.youtube.com/watch?v=ibtNkChGFkw&t=85s
 mvn clean package -DskipTests
 ```
 
-## Run
+## Run (Conole mode)
 
 ```console
-java -jar aws-sct-data-migrator-{version}.jar --project-path /aws/sct/project/directory
+java -jar aws-sct-data-migrator-{version}.jar --mode=console --project-path=/aws/sct/project/directory
+```
+
+## Run (Service mode)
+
+```console
+export MIGRATION_SERVICE_SCHEDULE={CRON expression for migration task execution}
+export MIGRATION_SERVICE_TIMEZONE={Time Zone}
+export MIGRATION_SERVICE_PROJECT_PATH={Project Path}
+export MIGRATION_SERVICE_SOURCE_PASSWORD={Source Database Password for the user in the AWS SCT Project}
+export MIGRATION_SERVICE_TARGET_PASSWORD={Target Database Password for the user in the AWS SCT Project}
+java -jar aws-sct-data-migrator-{version}.jar --mode=service
 ```
 
 ## CHANGELOG

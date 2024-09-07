@@ -1,10 +1,8 @@
-package app.alegon.aws.sct.migrator;
+package app.alegon.aws.sct.migrator.console;
 
 import java.io.Console;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
 import app.alegon.aws.sct.migrator.business.MigrationService;
 import app.alegon.aws.sct.migrator.model.MigrationProject;
@@ -12,8 +10,6 @@ import app.alegon.aws.sct.migrator.provider.DataSourceCredentials;
 import app.alegon.aws.sct.migrator.provider.MigrationProjectProvider;
 import app.alegon.aws.sct.migrator.util.resource.ResourceProviderType;
 
-@Component
-@Profile("!test")
 public class AwsSctDataMigratorConsole implements CommandLineRunner {
 
     private MigrationProjectProvider migrationProjectProvider;
@@ -32,7 +28,7 @@ public class AwsSctDataMigratorConsole implements CommandLineRunner {
     public void run(String... args) throws Exception {
         String projectPath = parseProjectPath(args);
         if (projectPath == null) {
-            System.err.println("Invalid arguments. Usage: java -jar <app.jar> --project-path <path>");
+            System.err.println("Invalid arguments. Usage: java -jar <app.jar> --project-path=<path>");
             System.exit(1);
         }
 
@@ -56,8 +52,9 @@ public class AwsSctDataMigratorConsole implements CommandLineRunner {
 
     private String parseProjectPath(String[] args) {
         for (int i = 0; i < args.length; i++) {
-            if (PROJECT_PATH_ARG.equals(args[i]) && i < args.length - 1) {
-                return args[i + 1];
+            String[] argParts = args[i].split("=");
+            if (argParts.length >= 2 && PROJECT_PATH_ARG.equals(argParts[0])) {
+                return argParts[1];
             }
         }
         return null;

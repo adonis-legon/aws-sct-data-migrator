@@ -9,6 +9,12 @@ app:
             name: FILESYSTEM
         observer:
             name: TEST_CONSOLE
+        service:
+            schedule: 
+            timezone: 
+            projectPath: 
+            sourcePassword: 
+            targetPassword: 
     persistence:
         transporter:
             fileSystem:

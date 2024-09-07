@@ -1,4 +1,4 @@
-package app.alegon.aws.sct.migrator;
+package app.alegon.aws.sct.migrator.observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +9,9 @@ import app.alegon.aws.sct.migrator.model.MigrationMappingStatus;
 import app.alegon.aws.sct.migrator.model.MigrationMappingStatusType;
 import app.alegon.aws.sct.migrator.model.MigrationStatus;
 
-@Component("CONSOLE")
-public class ConsoleDataMigratorObserver implements MigrationObserver {
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleDataMigratorObserver.class);
+@Component("LOG")
+public class LogMigratorObserver implements MigrationObserver {
+    private static final Logger logger = LoggerFactory.getLogger(LogMigratorObserver.class);
 
     @Override
     public void onProjectMigrationStatus(MigrationStatus migrationStatus) {
@@ -36,7 +36,5 @@ public class ConsoleDataMigratorObserver implements MigrationObserver {
                     migrationMappingStatus.migrationMapping().targetTable().name(),
                     ((Exception) migrationMappingStatus.statusContext()).getMessage()));
         }
-
     }
-
 }
