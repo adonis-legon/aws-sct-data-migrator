@@ -41,7 +41,7 @@ Reference video: https://www.youtube.com/watch?v=ibtNkChGFkw&t=85s
 mvn clean package -DskipTests
 ```
 
-## Run (Conole mode)
+## Run (Console mode)
 
 ```console
 java -jar aws-sct-data-migrator-{version}.jar --mode=console --project-path=/aws/sct/project/directory
